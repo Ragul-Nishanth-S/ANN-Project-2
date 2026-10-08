@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Neural Network Learning Demo</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- TensorFlow.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🧠 Interactive Neural Network Learning Demo</h1>
+    <p>Built with TensorFlow.js. Pick a dataset, design a network, press <b>Train</b> and watch it learn in real time.</p>
+  </header>
+
+  <main>
+    <!-- LEFT: controls -->
+    <section class="panel controls">
+      <h2>1. Data</h2>
+      <label>Dataset
+        <select id="dataset">
+          <option value="circle">Circle</option>
+          <option value="xor">XOR</option>
+          <option value="gaussian">Two Gaussians</option>
+          <option value="spiral">Spiral (hard)</option>
+        </select>
+      </label>
+      <label>Noise: <span id="noiseVal">0.10</span>
+        <input type="range" id="noise" min="0" max="0.5" step="0.05" value="0.1" />
+      </label>
+      <label>Points: <span id="nPointsVal">300</span>
+        <input type="range" id="nPoints" min="100" max="600" step="50" value="300" />
+      </label>
+      <button id="btnRegen" class="secondary">🔀 Regenerate data</button>
+
+      <h2>2. Input features</h2>
+      <div id="features" class="checks"></div>
+
+      <h2>3. Network</h2>
+      <div class="row">
+        <span>Hidden layers</span>
+        <span>
+          <button id="btnRemoveLayer" class="small">−</button>
+          <button id="btnAddLayer" class="small">+</button>
+        </span>
+      </div>
+      <div id="layers"></div>
+      <label>Activation
+        <select id="activation">
+          <option value="tanh">tanh</option>
+          <option value="relu">ReLU</option>
+          <option value="sigmoid">sigmoid</option>
+          <option value="linear">linear (no non-linearity)</option>
+        </select>
+      </label>
+
+      <h2>4. Training</h2>
+      <label>Optimizer
+        <select id="optimizer">
+          <option value="adam">Adam</option>
+          <option value="sgd">SGD</option>
+        </select>
+      </label>
+      <label>Learning rate
+        <select id="lr">
+          <option>0.001</option><option>0.003</option><option>0.01</option>
+          <option selected>0.03</option><option>0.1</option><option>0.3</option><option>1</option>
+        </select>
+      </label>
+      <label>Batch size
+        <select id="batch">
+          <option>8</option><option selected>16</option><option>32</option><option>64</option>
+        </select>
+      </label>
+
+      <div class="buttons">
+        <button id="btnTrain" class="primary">▶ Train</button>
+        <button id="btnStep" class="secondary">Step</button>
+        <button id="btnReset" class="secondary">↺ Reset</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: visualisations -->
+    <section class="panel viz">
+      <div class="stats">
+        <div><span>Epoch</span><b id="sEpoch">0</b></div>
+        <div><span>Train loss</span><b id="sTrainLoss">–</b></div>
+        <div><span>Test loss</span><b id="sTestLoss">–</b></div>
+        <div><span>Train acc</span><b id="sTrainAcc">–</b></div>
+        <div><span>Test acc</span><b id="sTestAcc">–</b></div>
+      </div>
+
+      <div class="vizrow">
+        <div>
+          <h3>Decision boundary</h3>
+          <canvas id="boundary" width="420" height="420"></canvas>
+          <p class="legend"><i class="dot c1"></i> class 1 &nbsp; <i class="dot c0"></i> class 0 &nbsp; ○ = test point</p>
+        </div>
+        <div>
+          <h3>Loss curve</h3>
+          <canvas id="chart" width="420" height="200"></canvas>
+          <p class="legend"><i class="line tr"></i> train &nbsp; <i class="line te"></i> test</p>
+          <h3>Network (line colour = weight sign)</h3>
+          <canvas id="netcanvas" width="420" height="200"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="panel explain">
+    <h2>What is happening?</h2>
+    <ol>
+      <li>Each point has coordinates (x₁, x₂) and a label (class 0 or 1). 80% are used for training, 20% for testing.</li>
+      <li>The network is a stack of <b>Dense</b> layers. Each neuron computes <code>activation(w·x + b)</code>.</li>
+      <li>The last neuron uses a <b>sigmoid</b> to output a probability between 0 and 1.</li>
+      <li>The <b>loss</b> (binary cross-entropy) measures how wrong the predictions are; the optimizer adjusts weights using <b>backpropagation</b> to reduce it.</li>
+      <li>The background colour shows what the network predicts for every position, so you can see the learned decision boundary.</li>
+    </ol>
+    <h3>Things to try</h3>
+    <ul>
+      <li>Spiral with only x₁, x₂ and 1 layer: it fails. Add layers/neurons or extra features.</li>
+      <li>Set activation to <b>linear</b>: the network can only draw a straight line (no non-linearity).</li>
+      <li>Learning rate 1 vs 0.001: observe unstable vs slow training.</li>
+      <li>Increase noise and compare train vs test loss to see <b>overfitting</b>.</li>
+    </ul>
+  </section>
+
+  <footer>Project: Artificial Neural Networks · TensorFlow.js demo</footer>
+  <script src="app.js"></script>
+</body>
+</html>
